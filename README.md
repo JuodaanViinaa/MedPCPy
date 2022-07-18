@@ -30,7 +30,7 @@ _____
 
 ### Requirements
 
-1. Python must be installed on the machine which will be used.
+1. Python must be installed on the machine which will be used. _Note:_ If the user is not familiar with Python, then it is advised to first check the [Python introduction](https://github.com/JuodaanViinaa/MedPCPy/blob/main/briefIntroToPython/introPython.pdf) contained in this repository.
 2. All files to analyze must be named using the format `"[subject name][spacing character][session number]"` so that the library can properly read them. The spacing character can be composed of more than one character, e.g.: `"Rat1_pretraining_1"`, where `"_pretraining_"` is the spacing character. Its importance will be explained shortly.
 3. Three directories must exist in the system in which the analysis will take place. Their names are not important, but their functions will be: (1) temporary storage of raw files, (2) permanent storage or raw files, and (3) storage of converted .xlsx files.
 4. All files must be placed inside the temporary directory (explained below) before the analysis.
