@@ -181,7 +181,7 @@ def lat_count(marks, time, trialStart, response, unit):
         if marks[n].value == trialStart:
             inicio = 1
             tiempoini = time[n].value
-        elif marks[n].value == response and inicio == 1:
+        elif marks[n].value == response and inicio == 1 and time[n].value != tiempoini:
             lat.append((time[n].value - tiempoini) / unit)
             inicio = 0
     if len(lat) == 0:
