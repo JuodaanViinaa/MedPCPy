@@ -32,20 +32,20 @@ def count_resp(marks, trialStart, trialEnd, response):  # Count_per_trial
     response that marks the beginning of the trial, then there will be an extra response counted. This can be corrected with the
     "subtract" option in the analysis list.\n
     :param marks: List of marks.
-    :param trialStart: Mark for start of trial.
-    :param trialEnd: Mark for end of trial.
-    :param response: Mark for response to count.
+    :param trialStart: Mark for start of trial or list of marks for different starts.
+    :param trialEnd: Mark for end of trial or list of marks for different ends.
+    :param response: Mark for response to count or list of marks for different responses.
     :return: List with the amount of responses per trial.
     """
     contadorTemp = 0
     inicio = 0
     resp = []
     for n in range(len(marks)):
-        if marks[n].value == trialStart:
+        if marks[n].value == trialStart or marks[n].value in trialStart:
             inicio = 1
-        elif marks[n].value == response and inicio == 1:
+        elif (marks[n].value == response or marks[n].value in response) and inicio == 1:
             contadorTemp += 1
-        elif marks[n].value == trialEnd and inicio == 1:
+        elif (marks[n].value == trialEnd or marks[n].value in trialEnd) and inicio == 1:
             inicio = 0
             resp.append(contadorTemp)
             contadorTemp = 0
@@ -54,7 +54,7 @@ def count_resp(marks, trialStart, trialEnd, response):  # Count_per_trial
     return resp
 
 
-def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount, unit):
+def resp_dist(marks, time, trialStart, trialEnd, responses, bin_size, bin_amount, unit):
     """
     Counts responses per time-bin in each trial of the session. The size and amount of bins can be specified. This
     function can deal with situations in which there is a trial-end mark (there is an inter-trial interval) as well
@@ -62,22 +62,21 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
     that occurred between the end of the last bin and the end of the trial will be aggregated in a single extra bin.\n
     :param marks: List of marks.
     :param time: List with session time.
-    :param trialStart: Mark for start of trial.
-    :param trialEnd: Mark for end of trial.
-    :param response: Mark of the response of interest.
+    :param trialStart: Mark for start of trial or list of marks for different starts.
+    :param trialEnd: Mark for end of trial or list of marks for different ends.
+    :param responses: Mark of the responses of interest, or list of marks for different responses.
     :param bin_size: Bin size in seconds.
     :param bin_amount: Amount of bins per trial.
     :return: List made of sub-lists which contain all responses per-bin, per-trial.
     :param unit: Temporal resolution. The quantity by which the seconds are divided in your MedPc setup.
     """
-    inicio = 0
-    resp_por_ensayo = [0] * (
-            bin_amount + 1)  # Generates a list with as many zeros as the parameter bin_amount dictates.
+    inicio = 0  # Suplementary variable. Keeps track of whether the trial has started or not.
+    resp_por_ensayo = [0] * (bin_amount + 1)  # Generates a list with as many zeros as the parameter bin_amount dictates
     resp_totales = []  # List which will contain sublist with the responses per-bin.
     bin_tuples = []  # List of time pairs: bin-start and bin-stop.
     if trialStart == trialEnd:  # This route is taken if there is a single mark for both the start and the end of the trial.
         for index, mark in enumerate(marks):
-            if mark.value == trialStart and inicio == 0:
+            if (mark.value == trialStart or mark.value in trialStart) and inicio == 0:
                 tiempo_inicio = time[index].value
                 # This loop creates a list with as many tuples as bin_amount dictates. Each tuple contains the start and
                 # end time for each bin. The end of a bin corresponds with the start of the next bin.
@@ -88,19 +87,21 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
                     tiempo_inicio = tiempo_fin
                 inicio = 1
 
-            elif mark.value == trialStart and inicio == 1:
+            elif (mark.value == trialStart or mark.value in trialStart) and inicio == 1:
                 # When the beginning of the next trial is found, the responses accumulated so far are added to the list
                 # of total responses.
                 resp_totales.append(resp_por_ensayo)
                 resp_por_ensayo = [0] * (bin_amount + 1)  # resp_por_ensayo and bin_tuples are emptied again.
                 bin_tuples = []
                 tiempo_inicio = time[index].value
+                # Maybe these 4 lines are redundant
                 for i in range(bin_amount):
                     tiempo_fin = tiempo_inicio + (bin_size * unit)
                     bin_tuples.append((tiempo_inicio, tiempo_fin))
                     tiempo_inicio = tiempo_fin
 
-            elif mark.value == response and inicio == 1:
+            elif (mark.value == responses or mark.value in responses) and inicio == 1:
+                # Check if the response or responses of interest are found at the current mark position
                 for idx, bin_tuple in enumerate(bin_tuples):
                     if bin_tuple[0] <= time[index].value < bin_tuple[1]:
                         # If a response is found, the program cycles through the list of tuples. If the response time
@@ -116,7 +117,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
 
     else:  # This route is taken if there are separate marks for both trial-start and trial-end.
         for index, mark in enumerate(marks):
-            if mark.value == trialStart and inicio == 0:
+            if (mark.value == trialStart or mark.value in trialStart) and inicio == 0:
                 tiempo_inicio = time[index].value
                 # This loop creates a list with as many tuples as bin_amount dictates. Each tuple contains the start and
                 # end time for each bin. The end of a bin corresponds with the start of the next bin.
@@ -126,7 +127,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
                     tiempo_inicio = tiempo_fin
                 inicio = 1
 
-            elif mark.value == response and inicio == 1:
+            elif (mark.value == responses or mark.value in responses) and inicio == 1:
                 for idx, bin_tuple in enumerate(bin_tuples):
                     if bin_tuple[0] <= time[index].value < bin_tuple[1]:
                         # If a response is found the program cycles through the list of tuples. If the response time
@@ -139,7 +140,7 @@ def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount,
                     # the last bin but before the next trial.
                     resp_por_ensayo[-1] += 1
 
-            elif mark.value == trialEnd:
+            elif mark.value == trialEnd or mark.value in trialEnd:
                 # After each trial the list with all responses is appended to a higher-order list called resp_totales.
                 # The values of resp_por_ensayo and bin_tuples are reset.
                 inicio = 0
@@ -154,12 +155,12 @@ def total_count(marks, response):
     """
     Counts all the occurences of a particular mark during the entire sesion regardless of trials.\n
     :param marks: List of marks.
-    :param response: Response of interest mark.
+    :param response: Mark for response of interest or list of marks for different responses.
     :return: Int with the total occurences of the response of interest.
     """
     contador = 0
     for n in range(len(marks)):
-        if marks[n].value == response:
+        if marks[n].value == response or marks[n].value in response:
             contador += 1
     return contador
 
@@ -169,8 +170,8 @@ def lat_count(marks, time, trialStart, response, unit):
     Computes the latency between the start of a trial and the first response of interest.\n
     :param marks: List of marks.
     :param time: List with session time.
-    :param trialStart: Mark for start of trial.
-    :param response: Mark for response of interest.
+    :param trialStart: Mark for start of trial or list of marks for different starts.
+    :param response: Mark for response of interest or list of marks for different responses.
     :param unit: Temporal resolution. The quantity by which seconds are divided in your MedPc setup.
     :return: List with latencies per trial.
     """
@@ -178,10 +179,10 @@ def lat_count(marks, time, trialStart, response, unit):
     lat = []
     tiempoini = 0
     for n in range(len(marks)):
-        if marks[n].value == trialStart:
+        if marks[n].value == trialStart or marks[n].value in trialStart:
             inicio = 1
             tiempoini = time[n].value
-        elif marks[n].value == response and inicio == 1 and time[n].value != tiempoini:
+        elif (marks[n].value == response or marks[n].value in response) and inicio == 1 and time[n].value != tiempoini:
             lat.append((time[n].value - tiempoini) / unit)
             inicio = 0
     if len(lat) == 0:
@@ -662,7 +663,7 @@ class Analyzer:
                         # A superlist is populated with lists of response distributions per trial.
                         superlist = resp_dist(marcadores, tiempo, trialStart=value["trial_start"],
                                               trialEnd=value["trial_end"],
-                                              response=value["response"], bin_size=value["bin_size"],
+                                              responses=value["response"], bin_size=value["bin_size"],
                                               bin_amount=value["bin_amount"],
                                               unit=value.get("unit", 1))
                         # Either the mean or the median of each bin (not each trial) is calculated.
@@ -698,7 +699,8 @@ class Analyzer:
                         # Write column list to wanted column in individual file
                         write_cols(hojaind, value["header"], value["column"], entire_col)
                         # Write column list to wanted column in summary file
-                        write_cols(col_sheet[f"{subject}_{value['header']}"], f"Session{session}", session + 1, entire_col)
+                        write_cols(col_sheet[f"{subject}_{value['header']}"], f"Session{session}", session + 1,
+                                   entire_col)
 
                 # The individual .xlsx file is saved.
                 sujetoWb.save(self.conv_directory + subject + self.suffix + str(session) + '.xlsx')

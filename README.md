@@ -1,6 +1,6 @@
 # MedPCPy
 
-The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and organize the relevant data (response frecuencies, latencies, and distributions) without the need of much programming abilities. After proper setup the entirety of the analysis of one or more sessions of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the subjects that are in the directory and the sessions associated with each of them, counts the responses, latencies, and/or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
+The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and organize the relevant data (response frequencies, latencies, and distributions) without the need of much programming abilities. After proper setup the entirety of the analysis of one or more sessions of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the subjects that are in the directory and the sessions associated with each of them, counts the responses, latencies, and/or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
 
 By default, the declared variables are written on the summary file vertically. That is, each measure of each subject occupies a column, and each session is written on a different row dictated by the session number and a [spacing argument](#spacing) in the `Analyzer` object declaration. It is possible, however, to write measures horizontally (each measure of each subject will occupy a row, and each session will be written on a column). This is done per-measure with the [`"write_rows"`](#write-rows) argument.
 
@@ -67,10 +67,10 @@ All of the work is performed by a single [object](https://www.geeksforgeeks.org/
 8. `analysisList`, a list of [dictionaries](https://www.w3schools.com/python/python_dictionaries.asp) which declares the details of every relevant measure to extract. The template for this list can be printed with the `template()` function. A more in depth explanation is provided [further down](#analysis_list) this file.
 9. `markColumn`, a _string_ stating the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 10. `timeColumn`, a _string_ stating the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
-11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manualy move the files back to the temporary directory while the code is being tested and debugged.
+11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manually move the files back to the temporary directory while the code is being tested and debugged.
 12. `colDivision`, an optional argument needed only in cases in which the MedPC files are divided in more than 6 columns (each column being represented by a set of characters divided by one or more white spaces). If more than 6 columns are present, then this argument must take as value the number of columns needed. E.g., `colDivision = 9`.
 <a id="spacing"></a>
-13. `spacing`, an optional argument which determines the amount of whitespace left in the summary file either at the top of the sheet (if working in columns) or at the left (if working in rows). By default, two rows or two columns are left blank to accomodate for the subject names and measure labels. If more (or less) space is needed, the needed amount of empty rows or columns must be stated as the value for this argument. E.g., `spacing = 5`.
+13. `spacing`, an optional argument which determines the amount of whitespace left in the summary file either at the top of the sheet (if working in columns) or at the left (if working in rows). By default, two rows or two columns are left blank to accommodate for the subject names and measure labels. If more (or less) space is needed, the needed amount of empty rows or columns must be stated as the value for this argument. E.g., `spacing = 5`.
 
 The `timeColumn` and `markColumn` arguments are not needed to initialize the `Analyzer` object. The values for these arguments are obtained after first initializing the object without them and using the `.convert()` method to convert at least one file to .xlsx format:
 
@@ -83,7 +83,7 @@ analyzer.convert()
 ```
 
 
-Then, this file must be manually inspected in order to get the letters of the columns which contain both the marks and the time registry. These columns are next to each other, are the same lenght, and are likely to be the longest columns in the entire file. 
+Then, this file must be manually inspected in order to get the letters of the columns which contain both the marks and the time registry. These columns are next to each other, are the same length, and are likely to be the longest columns in the entire file. 
 
 ![get_columns](https://user-images.githubusercontent.com/87039101/154622118-d96b7011-21d8-4414-87b0-9b2fa7c5df6f.png)
 
@@ -96,7 +96,7 @@ analyzer = Analyzer(fileName=summary_file, temporaryDirectory=temporary_director
                     analysisList=analysis_list, timeColumn="O", markColumn="P", relocate=False)
 ```
 
-In the case in which the user has set their MedPC configuration so that all measures of interest are printed on known places in their specific array(s), declaring the `timeColumn` and `markColumn` arguments is not necessary since they are useful when woking with a "TIME.EVENT" format.
+In the case in which the user has set their MedPC configuration so that all measures of interest are printed on known places in their specific array(s), declaring the `timeColumn` and `markColumn` arguments is not necessary since they are useful when working with a "TIME.EVENT" format.
 
 Besides these arguments, some other variables containing dictionaries that relate subjects to columns need to be declared before the main analysis takes place. Their use is explained below.
 
@@ -210,7 +210,7 @@ This function counts the amount of responses of interest that occurred between t
 
 The arguments `"trial_start"`, `"trial_end"`, and `"response"` are the marks for the start of the trial, end of the trial, and response of interest, respectively.
 
-The `"subtract"` argument is optional, and deals with the special case in which the response of interest is also the response that signals the start of the trial, and one desires not to count that first "starting" response as a part of the per-trial count. In such a situation, counting that additional response would overestimate the total responses per trial. To accomodate for that situation, adding the optional argument `"subtract": True` will subtract one unit from all non-zero response counts, which will result in an accurate measure. If one does not desire to subtract any units, then simply not declaring the argument will make it take a default value of `False`, and the subtraction will not be carried out.
+The `"subtract"` argument is optional, and deals with the special case in which the response of interest is also the response that signals the start of the trial, and one desires not to count that first "starting" response as a part of the per-trial count. In such a situation, counting that additional response would overestimate the total responses per trial. To accommodate for that situation, adding the optional argument `"subtract": True` will subtract one unit from all non-zero response counts, which will result in an accurate measure. If one does not desire to subtract any units, then simply not declaring the argument will make it take a default value of `False`, and the subtraction will not be carried out.
 
 The `"column"`and `"header"`arguments determine the way in which the complete list of responses per trial will be written on the individual .xlsx file. `"column"` indicates the column in which the list will be written (being that 1 = A, 2 = B, 3 = C, etc.). The `"header"`argument determines the title which the column will have in its first cell. In order to not overwrite any data, each declared dictionary from the analysis list must have a different value for `"column"`, and it is recommended to use an incremental order.
 
@@ -281,7 +281,7 @@ The arguments are the same as those already described for the previous functions
 
 ```python
 analysis_list = [
-    {"resp_dist": {"trial_start": 111, "trial_end": 222, "response": 333,
+    {"resp_dist": {"trial_start": 111, "trial_end": 222, "responses": 333,
                    "bin_size": 1,
                    "bin_amount": 15,
 		   "label": "Generic_title",  # Optional
@@ -291,7 +291,14 @@ analysis_list = [
 ]
 ```
 
-This function can determine the temporal distribution of a response of interest along each trial of the session. The function will divide each trial in _bins_ whose size (in seconds) and amount is determined by the user with the `"bin_size"` and `"bin_amount"` arguments, and then will count the occurrences of the response of interest during each bin. For each trial a separate list will be generated, and all lists will be written on a separate sheet of the individual xlsx file. A list with either the mean or the median of responses per bin will be written on a column on a separate sheet of the summary file, one sheet per subject and one column per session. These sheets are created automatically and take the name of each subject; thus, it is not necessary to declare these sheets in the `sheets` argument of the `Analyzer` object.
+This function can determine the temporal distribution of a response of interest along each trial of the session. The function will divide each trial in _bins_ whose size (in seconds) and amount is determined by the user with the `"bin_size"` and `"bin_amount"` arguments, and then will count the occurrences of the response or responses of interest during each bin. For each trial a separate list will be generated, and all lists will be written on a separate sheet of the individual xlsx file. A list with either the mean, median, or sum of responses per bin will be written on a column on a separate sheet of the summary file, one sheet per subject and one column per session. These sheets are created automatically and take the name of each subject; thus, it is not necessary to declare these sheets in the `sheets` argument of the `Analyzer` object.
+
+If it is desired to aggregate more than one response on the same distribution, then the value for the `responses` argument must be provided in the form of a list, e.g.,
+```python
+analysis_list = [
+    {"resp_dist": {"trial_start": 111, "trial_end": 222, "responses": [333, 444, 555],
+    ...
+```
 
 Since the distributions are written on separate columns per session and separate sheets per subject, the `"column"`, `"header"`, `"sheet"`, and `"summary_distribution"` arguments are not needed.
 
@@ -301,7 +308,7 @@ The `"bin_size"` and `"bin_amount"` arguments determine the duration in seconds 
 
 The program creates one additional _bin_ beyond those declared by `"bin_amount"` in which all responses that occurred beyond the last declared _bin_ are aggregated. If no such responses exist, the final _bin_ will be empty.
 
-If it is required to obtain the response distributions of more than one response in a single experiment then the optional argument `"label"` shall be declared with a name that identifies each of the measures that are needed. The function will create a separate sheet for each measure of each subject, and give it a name composed of the subject name followed by the string used as value for the `"label"` argument. For example, if one desires to obtain response distributions for lever presses and nosepoke entries, the necessary dictionaries could take a format like this:
+If it is required to obtain the response distributions for more than one response in a single experiment then the optional argument `"label"` shall be declared with a name that identifies each of the measures that are needed. The function will create a separate sheet for each measure of each subject, and give it a name composed of the subject name followed by the string used as value for the `"label"` argument. For example, if one desires to obtain response distributions for lever presses and nosepoke entries, the necessary dictionaries could take a format like this:
 
 ```python 
 analysis_list = [
@@ -325,7 +332,7 @@ analysis_list = [
 
 The resulting summary file would have two sheets for each subject: one assigned to the lever response distributions, and another assigned to the nosepoke response distributions. If the subjects were `"Rat1"` and `"Rat2"`, the resulting sheets would have the names of `"Rat1_Levers"`, `"Rat1_Nosepokes"`, `"Rat2_Levers"`, and `"Rat2_Nosepokes"`. Furthermore, the individual xlsx files would also have separate sheets for each response distribution. These sheets are also automatically created and have as name the value of the `"label"` argument.
 
-If the `"label"` argument is not declared then a single sheet per subject will be created in the summary file. If multiple response distributions are declared in the analysis list and the `"label"` argument is ommited in all of them, the distributions will overwrite one another and only the last declared distribution will prevail.
+If the `"label"` argument is not declared then a single sheet per subject will be created in the summary file. If multiple response distributions are declared in the analysis list and the `"label"` argument is omitted in all of them, the distributions will overwrite one another and only the last declared distribution will prevail.
 
 This function includes the `"statistic"` argument to determine whether a measure of central tendency (mean or median) or the sum of the values will be written, and the `"unit"` argument to specify the temporal resolution declared in the MedPC setup.
 
