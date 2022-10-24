@@ -61,7 +61,7 @@ def count_resp(marks, trialStart, trialEnd, response):  # Count_per_trial
     return resp
 
 
-def resp_dist(marks, time, trialStart, trialEnd, responses, bin_size, bin_amount, unit):
+def resp_dist(marks, time, trialStart, trialEnd, response, bin_size, bin_amount, unit):
     """
     Counts responses per time-bin in each trial of the session. The size and amount of bins can be specified. This
     function can deal with situations in which there is a trial-end mark (there is an inter-trial interval) as well
@@ -71,13 +71,13 @@ def resp_dist(marks, time, trialStart, trialEnd, responses, bin_size, bin_amount
     :param time: List with session time.
     :param trialStart: Mark for start of trial or list of marks for different starts.
     :param trialEnd: Mark for end of trial or list of marks for different ends.
-    :param responses: Mark of the responses of interest, or list of marks for different responses.
+    :param response: Mark of the response of interest, or list of marks for different responses.
     :param bin_size: Bin size in seconds.
     :param bin_amount: Amount of bins per trial.
     :return: List made of sub-lists which contain all responses per-bin, per-trial.
     :param unit: Temporal resolution. The quantity by which the seconds are divided in your MedPc setup.
     """
-    inicio = 0  # Suplementary variable. Keeps track of whether the trial has started or not.
+    inicio = 0  # Supplementary variable. Keeps track of whether the trial has started or not.
     resp_por_ensayo = [0] * (bin_amount + 1)  # Generates a list with as many zeros as the parameter bin_amount dictates
     resp_totales = []  # List which will contain sublist with the responses per-bin.
     bin_tuples = []  # List of time pairs: bin-start and bin-stop.
@@ -107,7 +107,7 @@ def resp_dist(marks, time, trialStart, trialEnd, responses, bin_size, bin_amount
                     bin_tuples.append((tiempo_inicio, tiempo_fin))
                     tiempo_inicio = tiempo_fin
 
-            elif mark.value in to_list(responses) and inicio == 1:
+            elif mark.value in to_list(response) and inicio == 1:
                 # Check if the response or responses of interest are found at the current mark position
                 for idx, bin_tuple in enumerate(bin_tuples):
                     if bin_tuple[0] <= time[index].value < bin_tuple[1]:
@@ -134,7 +134,7 @@ def resp_dist(marks, time, trialStart, trialEnd, responses, bin_size, bin_amount
                     tiempo_inicio = tiempo_fin
                 inicio = 1
 
-            elif mark.value in to_list(responses) and inicio == 1:
+            elif mark.value in to_list(response) and inicio == 1:
                 for idx, bin_tuple in enumerate(bin_tuples):
                     if bin_tuple[0] <= time[index].value < bin_tuple[1]:
                         # If a response is found the program cycles through the list of tuples. If the response time
@@ -670,7 +670,7 @@ class Analyzer:
                         # A superlist is populated with lists of response distributions per trial.
                         superlist = resp_dist(marcadores, tiempo, trialStart=value["trial_start"],
                                               trialEnd=value["trial_end"],
-                                              responses=value["response"], bin_size=value["bin_size"],
+                                              response=value["response"], bin_size=value["bin_size"],
                                               bin_amount=value["bin_amount"],
                                               unit=value.get("unit", 1))
                         # Either the mean or the median of each bin (not each trial) is calculated.
