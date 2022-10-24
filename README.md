@@ -185,7 +185,7 @@ This will result in three columns. The first will be in the position declared by
 If the `"offset"` argument is not declared, it will take a default value of `0`.
 
 <a id="write-rows"></a>
-Finally, the `"write_rows"` argument determines whether the measure will be written vertically (along a single column with one row per session), or horizontally (along a single row with one column per session). If its value is set to `True`, then the measure will be written horizontally. Otherwise it will take the default value of `False` and the measure will be written vertically. This argument is available for all functions except for `resp_dist` and `get_cols`.
+Finally, the `"write_rows"` argument determines whether the measure will be written vertically (along a single column with one row per session), or horizontally (along a single row with one column per session). If its value is set to `True`, then the measure will be written horizontally. Otherwise it will take the default value of `False` and the measure will be written vertically. This argument is available for all functions except for `"resp_dist"` and `"get_cols"`.
 
 #### Count_resp <a id="count-resp"></a>
 
@@ -323,7 +323,7 @@ analysis_list = [
 
 This function can determine the temporal distribution of a response of interest along each trial of the session. The function will divide each trial in _bins_ whose size (in seconds) and amount is determined by the user with the `"bin_size"` and `"bin_amount"` arguments, and then will count the occurrences of the response or responses of interest during each bin. For each trial a separate list will be generated, and all lists will be written on a separate sheet of the individual xlsx file. A list with either the mean, median, or sum of responses per bin will be written on a column on a separate sheet of the summary file, one sheet per subject and one column per session. These sheets are created automatically and take the name of each subject; thus, it is not necessary to declare these sheets in the `sheets` argument of the `Analyzer` object.
 
-If it is desired to aggregate more than one response on the same distribution, then the value for the `trial_start`, `trial_end`, and/or `response` arguments must be provided in the form of a list, e.g.,
+If it is desired to aggregate more than one response on the same distribution, then the value for the `"trial_start"`, `"trial_end"`, and/or `"response"` arguments must be provided in the form of a list, e.g.,
 
 ```python
 analysis_list = [
@@ -457,6 +457,13 @@ analysis_list = [
                    "statistic": "median",  # Alternative value: "mean"
                    "unit": 20,  # Optional
                    }},
+
+    # Entire column
+    {"get_cols": {
+        "source": "O",
+        "column": 1,
+        "header": "Generic_header",
+    }},
 ]
 ```
 
