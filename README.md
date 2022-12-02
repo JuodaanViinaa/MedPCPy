@@ -1,6 +1,6 @@
 # MedPCPy
 
-The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format; and then to extract and organize the relevant data (response frequencies, latencies, and distributions) without the need of much programming abilities. After proper setup the entirety of the analysis of one or more sessions of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the subjects that are in the directory and the sessions associated with each of them, counts the responses, latencies, and/or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
+The purpose of this library is to provide an easy and accesible way to convert MedPC files to .xlsx (Excel, LibreOffice Calc) format (the older .xls format is not supported); and then to extract and organize the relevant data (response frequencies, latencies, and distributions) without the need of much programming abilities. After proper setup the entirety of the analysis of one or more sessions of experiments and one or more subjects can be done with a single click. The library scans a temporary directory in search of data to analyze. It determines the subjects that are in the directory and the sessions associated with each of them, counts the responses, latencies, and/or response distributions declared by the user, and delivers both individual files and a summary file: the individual files contain complete and properly labeled lists of all variables of interest (one individual .xlsx file is created per subject per session); the summary file contains central tendency measures (either mean or median) for each variable written on the sheets and columns which the user indicates.
 
 By default, the declared variables are written on the summary file vertically. That is, each measure of each subject occupies a column, and each session is written on a different row dictated by the session number and a [spacing argument](#spacing) in the `Analyzer` object declaration. It is possible, however, to write measures horizontally (each measure of each subject will occupy a row, and each session will be written on a column). This is done per-measure with the [`"write_rows"`](#write-rows) argument.
 
@@ -10,6 +10,10 @@ Files are organized in three separate directories:
 3. A converted directory in which processed individual .xlsx files and the summary file are stored after analysis.
 
 This library uses functions from both [Openpyxl](https://openpyxl.readthedocs.io/en/stable/index.html) and [Pandas](https://pandas.pydata.org/pandas-docs/stable/). As such, it is advisable to be familiarized with them in order to understand the inner workings of some of its functions. It is, however, not necessary to know either of them to use this library.
+
+If this library is useful for you during your academic research you may cite us the following way:
+
+Maldonado, D., 2022. MedPCPy (Version 0.0.3)[Python Package]
 
 ## Quick Start
 
@@ -68,7 +72,10 @@ All of the work is performed by a single [object](https://www.geeksforgeeks.org/
 9. `markColumn`, a _string_ stating the column in which the marks are written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 10. `timeColumn`, a _string_ stating the column in which the time is written in the individual .xlsx files. This is only known _after_ converting at least one file, since the position of the column changes depending on the number of arrays used in MedPC for that particular experiment/condition.
 11. `relocate`, a boolean (that is, it takes only values of `True` and `False`) which indicates whether or not the raw MedPC files should be moved from the temporary directory to the permanent one after the analysis. This is useful so as to avoid having to manually move the files back to the temporary directory while the code is being tested and debugged.
-12. `colDivision`, an optional argument needed only in cases in which the MedPC files are divided in more than 6 columns (each column being represented by a set of characters divided by one or more white spaces). If more than 6 columns are present, then this argument must take as value the number of columns needed. E.g., `colDivision = 9`.
+12. `colDivision`, an optional argument needed only in cases in which the MedPC files are divided in more than 6 columns (each column being represented by a set of characters divided by one or more white spaces). If more than 6 columns are present, then this argument must take as value the number of columns needed. E.g., in the following data file the `colDivision` argument would need to take the value of 8 to account for the spaces used in the experiment name:
+![image](https://user-images.githubusercontent.com/87039101/205381570-1d3fca74-9c0c-4b19-a5d5-c618d8762d12.png)<br/><br/>
+This can happen when any of the header data from the MedPC files contain more than five spaces. It can be prevented by avoiding the use of spaces in the program, subject, or experiment names:<br/><br/>
+![image](https://user-images.githubusercontent.com/87039101/205386061-a9235692-f1ca-4b7a-8bdb-2da3549860bb.png)
 <a id="spacing"></a>
 13. `spacing`, an optional argument which determines the amount of whitespace left in the summary file either at the top of the sheet (if working in columns) or at the left (if working in rows). By default, two rows or two columns are left blank to accommodate for the subject names and measure labels. If more (or less) space is needed, the needed amount of empty rows or columns must be stated as the value for this argument. E.g., `spacing = 5`.
 
@@ -300,7 +307,7 @@ analysis_list = [
 ]
 ```
 
-This function computes the latencies per trial measured in seconds from the beginning of the trial to the first occurrence of the response of interest. The complete list of latencies per trial is written on the individual xlsx file, and the chosen measure of central tendency (mean or median) is written on the summary file.
+This function computes the latencies per trial measured in seconds from the beginning of the trial to the first occurrence of the response of interest. The complete list of latencies per trial is written on the individual .xlsx file, and the chosen measure of central tendency (mean or median) is written on the summary file.
 
 The arguments are the same as those already described for the previous functions with one exception: this function has a `"unit"` argument which determines the temporal resolution that will be used to count the latencies. The value of the argument is the amount by which seconds are divided. This is dependent on the user's MedPC setup. For example, if the temporal resolution that the user's MedPC setup has is twentieths of a second, then the value for `"unit"` shall be `20`; else, if the temporal resolution is just seconds, the value should be `1`.
 
@@ -321,7 +328,7 @@ analysis_list = [
 ]
 ```
 
-This function can determine the temporal distribution of a response of interest along each trial of the session. The function will divide each trial in _bins_ whose size (in seconds) and amount is determined by the user with the `"bin_size"` and `"bin_amount"` arguments, and then will count the occurrences of the response or responses of interest during each bin. For each trial a separate list will be generated, and all lists will be written on a separate sheet of the individual xlsx file. A list with either the mean, median, or sum of responses per bin will be written on a column on a separate sheet of the summary file, one sheet per subject and one column per session. These sheets are created automatically and take the name of each subject; thus, it is not necessary to declare these sheets in the `sheets` argument of the `Analyzer` object.
+This function can determine the temporal distribution of a response of interest along each trial of the session. The function will divide each trial in _bins_ whose size (in seconds) and amount is determined by the user with the `"bin_size"` and `"bin_amount"` arguments, and then will count the occurrences of the response or responses of interest during each bin. For each trial a separate list will be generated, and all lists will be written on a separate sheet of the individual .xlsx file. A list with either the mean, median, or sum of responses per bin will be written on a column on a separate sheet of the summary file, one sheet per subject and one column per session. These sheets are created automatically and take the name of each subject; thus, it is not necessary to declare these sheets in the `sheets` argument of the `Analyzer` object.
 
 If it is desired to aggregate more than one response on the same distribution, then the value for the `"trial_start"`, `"trial_end"`, and/or `"response"` arguments must be provided in the form of a list, e.g.,
 
@@ -382,7 +389,7 @@ analysis_list = [
 ]
 ```
 
-This function can copy an entire array from the individual xlsx files and paste it on a specific column of the individual file and on a dedicated sheet on the summary file. Much like the ["resp_dist"](#resp-dist) function, this function automatically creates the necessary sheets for each subject on the summary file. Each subject will have one dedicated sheet named `[subject name]_[label]`, and each session will be written on a different column.
+This function can copy an entire array from the individual .xlsx files and paste it on a specific column of the individual file and on a dedicated sheet on the summary file. Much like the ["resp_dist"](#resp-dist) function, this function automatically creates the necessary sheets for each subject on the summary file. Each subject will have one dedicated sheet named `[subject name]_[label]`, and each session will be written on a different column.
 
 The `"source"` argument indicates the column from the individual xlsx file which will be copied. This is known after converting at least one file and manually determining the position of the column of interest. The `"column"` argument determines the position in which the column will be pasted in the sheet in which all full-lists are written in the individual file (1 = A, 2 = B, etc). Finally, the `"header"` argument determines both the title which the column will have on the individual xlsx file and the title of the dedicated sheet which will be created on the summary file.
 
